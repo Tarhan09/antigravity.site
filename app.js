@@ -342,6 +342,10 @@ function onItemClick(e, node) {
   document.querySelectorAll('.file-card, .file-row').forEach(el => el.classList.remove('selected'));
   e.currentTarget.classList.add('selected');
   showDetailPanel(node);
+  
+  if (window.innerWidth <= 768) {
+    document.getElementById('detailPanel').classList.add('open');
+  }
 }
 
 function onItemDblClick(node) {
@@ -414,7 +418,11 @@ function clearDetailPanel() {
 
 document.getElementById('closeDetail').addEventListener('click', () => {
   const panel = document.getElementById('detailPanel');
-  panel.classList.toggle('collapsed');
+  if (window.innerWidth <= 768) {
+    panel.classList.remove('open');
+  } else {
+    panel.classList.toggle('collapsed');
+  }
 });
 
 /* ============================================================
@@ -699,9 +707,20 @@ document.getElementById('previewModal').addEventListener('click', e => {
 /* ============================================================
    SIDEBAR TOGGLE
    ============================================================ */
-document.getElementById('sidebarToggle').addEventListener('click', () => {
-  document.getElementById('sidebar').classList.toggle('collapsed');
-});
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  
+  if (window.innerWidth <= 768) {
+    sidebar.classList.toggle('open');
+    backdrop.classList.toggle('active');
+  } else {
+    sidebar.classList.toggle('collapsed');
+  }
+}
+
+document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
+document.getElementById('sidebarBackdrop').addEventListener('click', toggleSidebar);
 
 /* ============================================================
    VIEW MODE & SORT
