@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VaultSpace — Veri Depolama</title>
+  <meta name="description" content="VaultSpace — güvenli, şık karanlık tema veri depolama platformu." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Animated starfield canvas -->
+  <canvas id="starfield"></canvas>
+
+  <!-- App Shell -->
+  <div class="app-shell">
+
+    <!-- ========== TOP NAV ========== -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="sidebar-toggle" id="sidebarToggle" title="Kenar çubuğunu aç/kapat">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="brand">
+          <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <ellipse cx="12" cy="5" rx="9" ry="3"/>
+            <path d="M3 5v5c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/>
+            <path d="M3 10v5c0 1.66 4.03 3 9 3s9-1.34 9-3v-5"/>
+            <path d="M3 15v4c0 1.66 4.03 3 9 3s9-1.34 9-3v-4"/>
+          </svg>
+          <span>VaultSpace</span>
+        </div>
+      </div>
+      <div class="topbar-center">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="Dosya ara…" autocomplete="off" />
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="storage-bar-wrap">
+          <span class="storage-label">Depolama</span>
+          <div class="storage-bar"><div class="storage-fill" id="storageFill"></div></div>
+          <span class="storage-text" id="storageText">0 / 0 MB</span>
+        </div>
+        <button class="btn-icon" id="themeToggle" title="Tema değiştir">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- ========== MAIN LAYOUT ========== -->
+    <div class="layout">
+
+      <!-- ===== SIDEBAR ===== -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <span>Dosya Gezgini</span>
+          <button class="btn-icon btn-sm" id="newFolderBtn" title="Yeni klasör">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+          </button>
+        </div>
+        <div class="tree-container" id="treeContainer">
+          <!-- rendered by JS -->
+        </div>
+      </aside>
+
+      <!-- ===== MAIN CONTENT ===== -->
+      <main class="main-content" id="mainContent">
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb" id="breadcrumb">
+          <span class="bc-item active" data-path="root">Ana Dizin</span>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+          <div class="toolbar-left">
+            <button class="btn btn-primary" id="uploadBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+              Dosya Yükle
+            </button>
+            <input type="file" id="fileInput" multiple hidden />
+            <button class="btn btn-secondary" id="newFolderBtnMain">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+              Yeni Klasör
+            </button>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn-icon view-btn active" id="viewGrid" title="Izgara görünümü">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            </button>
+            <button class="btn-icon view-btn" id="viewList" title="Liste görünümü">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            </button>
+            <select class="sort-select" id="sortSelect">
+              <option value="name">Ada göre</option>
+              <option value="date">Tarihe göre</option>
+              <option value="size">Boyuta göre</option>
+              <option value="type">Türe göre</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Drop Zone overlay -->
+        <div class="drop-overlay" id="dropOverlay">
+          <div class="drop-overlay-inner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+            <p>Dosyaları buraya bırakın</p>
+          </div>
+        </div>
+
+        <!-- File Grid -->
+        <div class="file-grid" id="fileGrid">
+          <!-- rendered by JS -->
+        </div>
+
+        <!-- Empty state -->
+        <div class="empty-state" id="emptyState" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M3 3h18v18H3z" rx="2"/><path d="M12 8v8m-4-4h8"/></svg>
+          <h3>Henüz dosya yok</h3>
+          <p>Dosya yüklemek için yukarıdaki butona tıklayın ya da sürükleyip bırakın.</p>
+        </div>
+
+      </main>
+
+      <!-- ===== DETAIL PANEL ===== -->
+      <aside class="detail-panel" id="detailPanel">
+        <div class="detail-header">
+          <span>Ayrıntılar</span>
+          <button class="btn-icon btn-sm" id="closeDetail">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="detail-body" id="detailBody">
+          <div class="detail-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            <p>Bir dosya veya klasör seçin</p>
+          </div>
+        </div>
+        <div class="detail-actions" id="detailActions" style="display:none">
+          <button class="btn btn-ghost" id="downloadBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
+            İndir
+          </button>
+          <button class="btn btn-ghost btn-danger" id="deleteBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6m4-6v6"/><path d="M9 6V4h6v2"/></svg>
+            Sil
+          </button>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- ========== MODALS ========== -->
+
+  <!-- New Folder Modal -->
+  <div class="modal-backdrop" id="folderModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Yeni Klasör</h2>
+        <button class="btn-icon" id="closeFolderModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <label for="folderName">Klasör Adı</label>
+        <input type="text" id="folderName" placeholder="Klasör adını girin…" autocomplete="off" />
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="cancelFolder">İptal</button>
+        <button class="btn btn-primary" id="confirmFolder">Oluştur</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Preview modal -->
+  <div class="modal-backdrop" id="previewModal">
+    <div class="modal modal-large">
+      <div class="modal-header">
+        <h2 id="previewTitle">Önizleme</h2>
+        <button class="btn-icon" id="closePreview"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="modal-body preview-body" id="previewBody"></div>
+    </div>
+  </div>
+
+  <!-- Rename modal -->
+  <div class="modal-backdrop" id="renameModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Yeniden Adlandır</h2>
+        <button class="btn-icon" id="closeRenameModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <label for="renameName">Yeni Ad</label>
+        <input type="text" id="renameName" autocomplete="off" />
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="cancelRename">İptal</button>
+        <button class="btn btn-primary" id="confirmRename">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Context menu -->
+  <div class="context-menu" id="contextMenu">
+    <button class="ctx-item" id="ctxOpen">Aç</button>
+    <button class="ctx-item" id="ctxRename">Yeniden Adlandır</button>
+    <button class="ctx-item" id="ctxDownload">İndir</button>
+    <div class="ctx-divider"></div>
+    <button class="ctx-item ctx-danger" id="ctxDelete">Sil</button>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Upload progress -->
+  <div class="upload-progress-panel" id="uploadProgress" style="display:none">
+    <div class="up-header">
+      <span>Yükleniyor…</span>
+      <button class="btn-icon btn-sm" id="closeUploadProgress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="up-list" id="upList"></div>
+  </div>
+
+  <script src="stars.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
