@@ -143,6 +143,10 @@
           </div>
         </div>
         <div class="detail-actions" id="detailActions" style="display:none">
+          <button class="btn btn-ghost" id="shareBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            Paylaş
+          </button>
           <button class="btn btn-ghost" id="downloadBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
             İndir
@@ -205,10 +209,36 @@
     </div>
   </div>
 
+  <!-- Share modal -->
+  <div class="modal-backdrop" id="shareModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Dosyayı Paylaş</h2>
+        <button class="btn-icon" id="closeShareModal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;" id="shareFileName"></p>
+        <label for="shareLink">Paylaşım Bağlantısı</label>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="shareLink" readonly style="flex:1;" />
+          <button class="btn btn-primary" id="copyShareLink">Kopyala</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" id="cancelShare">Kapat</button>
+        <button class="btn btn-primary" id="nativeShareBtn" style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Cihazla Paylaş
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Context menu -->
   <div class="context-menu" id="contextMenu">
     <button class="ctx-item" id="ctxOpen">Aç</button>
     <button class="ctx-item" id="ctxRename">Yeniden Adlandır</button>
+    <button class="ctx-item" id="ctxShare">Paylaş</button>
     <button class="ctx-item" id="ctxDownload">İndir</button>
     <div class="ctx-divider"></div>
     <button class="ctx-item ctx-danger" id="ctxDelete">Sil</button>

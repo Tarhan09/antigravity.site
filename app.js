@@ -782,6 +782,97 @@ function escHtml(str) {
 }
 
 /* ============================================================
+   SHARE
+   ============================================================ */
+function openShareModal(node) {
+  if (!node || node.type === 'folder') {
+    showToast('Sadece dosyalar paylaşılabilir', 'error');
+    return;
+  }
+
+  document.getElementById('shareFileName').textContent = node.name;
+
+  // Generate a blob URL as a shareable link
+  if (node.dataUrl) {
+    const shareLink = node.dataUrl.substring(0, 80) + '…';
+    document.getElementById('shareLink').value = window.location.href.split('?')[0] + '?file=' + encodeURIComponent(node.name);
+  } else {
+    document.getElementById('shareLink').value = 'Dosya verisi bulunamadı';
+  }
+
+  // Show native share button if Web Share API is available
+  const nativeBtn = document.getElementById('nativeShareBtn');
+  nativeBtn.style.display = navigator.share ? 'inline-flex' : 'none';
+
+  document.getElementById('shareModal').classList.add('open');
+}
+
+function closeShareModal() {
+  document.getElementById('shareModal').classList.remove('open');
+}
+
+document.getElementById('closeShareModal').addEventListener('click', closeShareModal);
+document.getElementById('cancelShare').addEventListener('click', closeShareModal);
+document.getElementById('shareModal').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeShareModal();
+});
+
+document.getElementById('copyShareLink').addEventListener('click', () => {
+  const input = document.getElementById('shareLink');
+  input.select();
+  navigator.clipboard.writeText(input.value).then(() => {
+    showToast('Bağlantı panoya kopyalandı!', 'success');
+  }).catch(() => {
+    document.execCommand('copy');
+    showToast('Bağlantı kopyalandı!', 'success');
+  });
+});
+
+document.getElementById('nativeShareBtn').addEventListener('click', () => {
+  const [node] = findNodeById(STATE.selectedId);
+  if (!node || !node.dataUrl) return;
+
+  // Convert dataUrl to File for native sharing
+  try {
+    const arr = node.dataUrl.split(',');
+    const mime = arr[0].match(/:(.*?);/)[1];
+    const bstr = atob(arr[1]);
+    const u8arr = new Uint8Array(bstr.length);
+    for (let i = 0; i < bstr.length; i++) u8arr[i] = bstr.charCodeAt(i);
+    const file = new File([u8arr], node.name, { type: mime });
+
+    navigator.share({
+      title: node.name,
+      text: `VaultSpace üzerinden paylaşılan dosya: ${node.name}`,
+      files: [file],
+    }).then(() => {
+      showToast('Dosya paylaşıldı!', 'success');
+      closeShareModal();
+    }).catch(() => {
+      // User cancelled or error — try without files
+      navigator.share({
+        title: node.name,
+        text: `VaultSpace üzerinden paylaşılan dosya: ${node.name}`,
+        url: window.location.href,
+      }).catch(() => {});
+    });
+  } catch {
+    showToast('Paylaşım başarısız oldu', 'error');
+  }
+});
+
+// Share button in detail panel
+document.getElementById('shareBtn').addEventListener('click', () => {
+  const [node] = findNodeById(STATE.selectedId);
+  if (node) openShareModal(node);
+});
+
+// Share in context menu
+document.getElementById('ctxShare').addEventListener('click', () => {
+  if (STATE.ctxTarget) openShareModal(STATE.ctxTarget);
+});
+
+/* ============================================================
    KEYBOARD SHORTCUTS
    ============================================================ */
 document.addEventListener('keydown', e => {
@@ -790,6 +881,7 @@ document.addEventListener('keydown', e => {
     document.getElementById('folderModal').classList.remove('open');
     document.getElementById('previewModal').classList.remove('open');
     document.getElementById('renameModal').classList.remove('open');
+    document.getElementById('shareModal').classList.remove('open');
     document.getElementById('previewBody').innerHTML='';
   }
   if (e.key === 'Delete' && STATE.selectedId && document.activeElement.tagName !== 'INPUT') {
